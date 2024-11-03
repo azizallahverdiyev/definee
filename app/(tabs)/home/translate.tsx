@@ -17,6 +17,9 @@ import { WebView } from "react-native-webview";
 import { OxfordLanguages } from "@/search/OxfordLanguages";
 import { MeriamWebster } from "@/search/MeriamWebster";
 import { Audio } from "expo-av";
+import GroupDefinition from "@/components/group_def";
+import SingleDefinition from "@/components/single_def";
+import { Feather } from "@expo/vector-icons";
 
 export default function Translate() {
   let colorScheme = useColorScheme();
@@ -129,10 +132,19 @@ export default function Translate() {
         originWhitelist={["*"]}
       />
 
-      <View style={styles.tobbar}>
+      <View style={styles.topbar}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.word}>{word}</Text>
-          <Text style={styles.source}>{sourcekp[source]}</Text>
+          <Text style={[styles.word, { color: colors[colorScheme].text }]}>
+            {word.trim()}
+          </Text>
+          <Text
+            style={[
+              styles.source,
+              { color: colorScheme == "dark" ? "#9E9E9E" : "#686868" },
+            ]}
+          >
+            {sourcekp[source]}
+          </Text>
         </View>
         <View
           style={{
@@ -143,6 +155,9 @@ export default function Translate() {
           }}
         >
           <TouchableOpacity
+            activeOpacity={
+              Object.keys(data).length > 0 && resFound && canPlay ? 0.3 : 1
+            }
             onPress={
               Object.keys(data).length > 0 && resFound && canPlay
                 ? playSound
@@ -154,18 +169,42 @@ export default function Translate() {
                 borderRadius: 50,
                 backgroundColor:
                   Object.keys(data).length > 0 && resFound
-                    ? "#A8FF00"
+                    ? colors[colorScheme].secondary
                     : "#C6C6C6",
                 height: 50,
                 width: 50,
+                alignItems: "center",
+                justifyContent: "center",
               }}
-            ></View>
+            >
+              <Feather
+                name="headphones"
+                size={30}
+                color={
+                  Object.keys(data).length > 0 && resFound
+                    ? colors[colorScheme].text
+                    : "#656565"
+                }
+              />
+            </View>
           </TouchableOpacity>
         </View>
       </View>
 
       {Object.keys(data).map((key) => (
-        <View key={key} style={{ backgroundColor: "#A800FF" }}>
+        <GroupDefinition key={key} wordtype={key}>
+          {data[key].map(
+            (val: { meaning: string; example?: string }, index: number) => (
+              <SingleDefinition
+                meaning={val.meaning}
+                order={index + 1}
+                example={val.example}
+              />
+            )
+          )}
+        </GroupDefinition>
+
+        /*<View key={key} style={{ backgroundColor: "#A800FF" }}>
           <Text>Type: {key}</Text>
           {data[key].map((val, index) => (
             <View key={index} style={{ backgroundColor: "#fff", marginTop: 5 }}>
@@ -173,10 +212,15 @@ export default function Translate() {
               <Text>Example: {val.example}</Text>
             </View>
           ))}
-        </View>
+        </View>*/
       ))}
 
-      <Link href="/home">Go to Home</Link>
+      <Link
+        style={{ color: "#636363", marginLeft: 25, marginTop: 20 }}
+        href="/home"
+      >
+        Go to Home
+      </Link>
     </ScrollView>
   ) : (
     <View>
@@ -186,15 +230,17 @@ export default function Translate() {
 }
 
 const styles = StyleSheet.create({
-  tobbar: {
+  topbar: {
     marginHorizontal: 25,
     flexDirection: "row",
     height: 61,
+    marginTop: 40,
+    marginBottom: 10,
   },
   word: {
-    color: "white",
+    color: "#000",
     fontSize: 35,
-    fontFamily: "Inter_400Regular",
+    fontFamily: "Inter_500Medium",
   },
   source: {
     color: "#686868",
